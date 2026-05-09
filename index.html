@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sit Timer v2</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1b1813">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>
 :root{--bg1:#0d0d0b;--bg2:#1b1813;--card:rgba(246,238,219,.085);--text:#f5ecd9;--muted:#b9ad97;--line:rgba(245,236,217,.16);--accent:#d8b66f;--danger:#b86c5a}
 *{box-sizing:border-box}
@@ -106,6 +110,13 @@ startPause.addEventListener("click",()=>{if(running)pause();else if(paused)resum
 reset.addEventListener("click",resetTimer);testBell.addEventListener("click",()=>playBell(8));saveManual.addEventListener("click",()=>addSession(durationMin));
 clearLog.addEventListener("click",()=>{if(confirm("Clear all saved practice totals on this browser?"))setLog([])});
 renderPreview();renderStats();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js");
+  });
+}
 </script>
 </body>
 </html>
