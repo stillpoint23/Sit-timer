@@ -1,0 +1,19 @@
+{
+  "name": "Sit Timer",
+  "short_name": "Sit Timer",
+  "description": "A simple meditation timer with bells, live end time, and practice totals.",
+  "start_url": "/Sit-timer/",
+  "scope": "/Sit-timer/",
+  "display": "standalone",
+  "background_color": "#0d0d0b",
+  "theme_color": "#1b1813",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
