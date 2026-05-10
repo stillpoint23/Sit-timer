@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Still Point</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1b1813">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+
+<style>
+:root {
+  --bg1:#0d0d0b;
+  --bg2:#1b1813;
+  --card:rgba(246,238,219,.085);
+  --text:#f5ecd9;
+  --muted:#b9ad97;
+  --line:rgba(245,236,217,.16);
+  --accent:#d8b66f;
+  --accent2:#e0c27c;
+  --dark:#0b0a08;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:radial-gradient(circle at top,rgba(216,182,111,.13),transparent 34%),linear-gradient(180deg,var(--bg2),var(--bg1));
+  color:var(--text);
+}
+body{min-height:100vh;display:grid;place-items:center;padding:24px}
+.app{
+  width:min(620px,100%);
+  border:1px solid var(--line);
+  border-radius:32px;
+  background:var(--card);
+  backdrop-filter:blur(10px);
+  padding:30px;
+  box-shadow:0 30px 90px rgba(0,0,0,.38);
+}
+h1{
+  margin:0 0 6px;
+  text-align:center;
+  font-size:1.65rem;
+  font-weight:320;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.orientation{
+  text-align:center;
+  color:var(--muted);
+  line-height:1.55;
+  margin-bottom:24px;
+}
+.orientation strong{color:var(--text);font-weight:420}
+.duration{text-align:center;margin:10px 0 20px}
+#durationText{
+  font-size:clamp(4rem,12vw,7rem);
+  line-height:.95;
+  font-weight:280;
+  letter-spacing:-.08em;
+}
+.unit{
+  display:block;
+  margin-top:10px;
+  color:var(--muted);
+  font-size:.95rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+input[type=range]{width:100%;accent-color:var(--accent);margin:10px 0 18px}
+.adjust,.quick,.controls{
+  display:grid;
+  gap:9px;
+  margin-bottom:18px;
+}
+.adjust{grid-template-columns:repeat(5,1fr)}
+.quick{grid-template-columns:repeat(6,1fr)}
+.controls{grid-template-columns:2fr 1fr 1fr}
+button,select,textarea,input{font:inherit}
+button,select{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  border-radius:999px;
+  padding:12px 10px;
+}
+button{cursor:pointer}
+button:hover,select:hover{background:rgba(255,255,255,.10)}
+button:active{transform:translateY(1px)}
+.primary{background:var(--accent);color:#17130a;font-weight:700;border-color:transparent}
+.primary:hover{background:var(--accent2)}
+.readouts{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin:20px 0;
+}
+.panel,.stats,.notes{
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:rgba(0,0,0,.16);
+  padding:16px;
+  text-align:center;
+}
+.label{
+  color:var(--muted);
+  font-size:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  margin-bottom:8px;
+}
+.value{font-size:1.75rem;font-weight:300}
+#status{
+  min-height:32px;
+  text-align:center;
+  color:var(--muted);
+  font-size:1.05rem;
+  margin:12px 0 4px;
+}
+.options{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:18px;
+  color:var(--muted);
+  margin:16px 0;
+}
+label{display:inline-flex;gap:8px;align-items:center}
+.notes{margin-top:16px;text-align:left}
+.notes p{text-align:center;margin:0 0 10px;color:var(--muted)}
+textarea{
+  width:100%;
+  min-height:76px;
+  resize:vertical;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:rgba(0,0,0,.22);
+  color:var(--text);
+  padding:12px;
+}
+.hidden{display:none}
+.stats{margin-top:18px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.small-value{font-size:1.3rem;font-weight:300}
+.stats-actions{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.danger{color:#ffd6cf;border-color:rgba(184,108,90,.55)}
+.note{
+  margin:20px 0 0;
+  color:var(--muted);
+  text-align:center;
+  font-size:.86rem;
+  line-height:1.45;
+}
+@media(max-width:520px){
+  .app{padding:22px;border-radius:24px}
+  .quick{grid-template-columns:repeat(3,1fr)}
+  .readouts,.controls{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+<main class="app">
+  <h1>Still Point</h1>
+  <div class="orientation">
+    <strong>Allow Everything — Rest in Awareness</strong><br>
+    <em>Its Like This…</em>
+  </div>
+
+  <section class="duration">
+    <div id="durationText">90</div>
+    <span class="unit">minutes</span>
+  </section>
+
+  <input id="durationSlider" type="range" min="1" max="300" step="1" value="90">
+
+  <div class="adjust">
+    <button data-adjust="-10">−10</button>
+    <button data-adjust="-5">−5</button>
+    <button data-adjust="-1">−1</button>
+    <button data-adjust="1">+1</button>
+    <button data-adjust="5">+5</button>
+  </div>
+
+  <div class="quick">
+    <button data-set="30">30</button>
+    <button data-set="45">45</button>
+    <button data-set="60">60</button>
+    <button data-set="90">90</button>
+    <button data-set="120">120</button>
+    <button data-set="180">180</button>
+  </div>
+
+  <div id="status">Ready</div>
+
+  <section class="readouts">
+    <div class="panel">
+      <div class="label">Ends at</div>
+      <div id="endAt" class="value">--:--</div>
+    </div>
+    <div class="panel">
+      <div class="label">Remaining</div>
+      <div id="remaining" class="value">--:--</div>
+    </div>
+  </section>
+
+  <div class="controls">
+    <button id="startPause" class="primary">Start</button>
+    <button id="endEarly">End</button>
+    <button id="testBell">Bell</button>
+  </div>
+
+  <div class="options">
+    <label><input id="openingBell" type="checkbox" checked> Opening bell</label>
+    <label><input id="closingBell" type="checkbox" checked> Closing bell</label>
+    <label><input id="notesToggle" type="checkbox"> Optional notes</label>
+  </div>
+
+  <section id="notesBox" class="notes hidden">
+    <p>Anything worth noting?</p>
+    <textarea id="sessionNote" maxlength="280" placeholder="A sentence or two. Optional."></textarea>
+  </section>
+
+  <section class="stats">
+    <div class="label">Practice total on this browser</div>
+    <div class="stats-grid">
+      <div>
+        <div class="label">Sessions</div>
+        <div id="sessionCount" class="small-value">0</div>
+      </div>
+      <div>
+        <div class="label">Total</div>
+        <div id="totalTime" class="small-value">0h 0m</div>
+      </div>
+    </div>
+    <div class="stats-actions">
+      <button id="clearLog" class="danger">Clear log</button>
+    </div>
+  </section>
+
+  <p class="note">
+    Actual sitting time is logged. Paused time is excluded. Ending early saves the actual duration.
+  </p>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const slider = $("durationSlider");
+const durationText = $("durationText");
+const endAt = $("endAt");
+const remaining = $("remaining");
+const statusEl = $("status");
+const startPause = $("startPause");
+const endEarly = $("endEarly");
+const testBell = $("testBell");
+const openingBell = $("openingBell");
+const closingBell = $("closingBell");
+const notesToggle = $("notesToggle");
+const notesBox = $("notesBox");
+const sessionNote = $("sessionNote");
+const sessionCount = $("sessionCount");
+const totalTime = $("totalTime");
+const clearLog = $("clearLog");
+
+const LOG_KEY = "stillPointPracticeLogV4";
+
+let durationMin = Number(slider.value);
+let mode = "ready"; // ready, countdown, running, paused, ended
+let countdownId = null;
+let tickId = null;
+let countdownValue = 5;
+let runStartedAt = null;
+let accumulatedMs = 0;
+let targetMs = durationMin * 60000;
+let loggedCurrentSession = false;
+
+function getLog(){
+  try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; }
+  catch { return []; }
+}
+
+function setLog(log){
+  localStorage.setItem(LOG_KEY, JSON.stringify(log));
+  renderStats();
+}
+
+function renderStats(){
+  const log = getLog();
+  const mins = log.reduce((sum, item) => sum + Number(item.minutes || 0), 0);
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  sessionCount.textContent = log.length;
+  totalTime.textContent = `${h}h ${m}m`;
+}
+
+function formatClock(ms){
+  return new Date(ms).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+}
+
+function formatRemaining(ms){
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  return `${m}:${String(s).padStart(2,"0")}`;
+}
+
+function actualElapsedMs(){
+  if (mode === "running" && runStartedAt) {
+    return accumulatedMs + (Date.now() - runStartedAt);
+  }
+  return accumulatedMs;
+}
+
+function remainingMs(){
+  return Math.max(0, targetMs - actualElapsedMs());
+}
+
+function updateDurationDisplay(){
+  durationText.textContent = durationMin;
+}
+
+function renderReady(){
+  updateDurationDisplay();
+  const previewEnd = Date.now() + targetMs;
+  endAt.textContent = formatClock(previewEnd);
+  remaining.textContent = formatRemaining(targetMs);
+  statusEl.textContent = "Ready";
+}
+
+function renderRunning(){
+  const left = remainingMs();
+  const endTime = Date.now() + left;
+  endAt.textContent = formatClock(endTime);
+  remaining.textContent = formatRemaining(left);
+  if (left <= 0) finishSession(false);
+}
+
+function renderPaused(){
+  remaining.textContent = formatRemaining(remainingMs());
+  endAt.textContent = formatClock(Date.now() + remainingMs());
+}
+
+function render(){
+  if (mode === "ready" || mode === "ended") renderReady();
+  else if (mode === "running") renderRunning();
+  else if (mode === "paused") renderPaused();
+}
+
+function setDuration(mins){
+  if (mode !== "ready" && mode !== "ended") return;
+  durationMin = Math.min(300, Math.max(1, Number(mins)));
+  targetMs = durationMin * 60000;
+  slider.value = durationMin;
+  renderReady();
+}
+
+function createNoiseBuffer(ctx, seconds){
+  const size = Math.floor(ctx.sampleRate * seconds);
+  const buffer = ctx.createBuffer(1, size, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i=0; i<size; i++){
+    const decay = Math.exp(-i / (ctx.sampleRate * 0.055));
+    data[i] = (Math.random() * 2 - 1) * decay;
+  }
+  return buffer;
+}
+
+function bellTemple(){
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  const ctx = new AudioContext();
+  const now = ctx.currentTime;
+  const tail = 14.5;
+
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.00001, now);
+  master.gain.exponentialRampToValueAtTime(0.86, now + 0.018);
+  master.gain.exponentialRampToValueAtTime(0.00001, now + tail);
+  master.connect(ctx.destination);
+
+  // Lower-mid, brassy, inharmonic temple-bell partials.
+  // These are synthesized tones, not sampled from any commercial app.
+  const partials = [
+    {f:174.61, g:0.38, d:tail},       // F3 body
+    {f:221.2,  g:0.20, d:tail*0.96},  // non-octave bronze overtone
+    {f:261.63, g:0.16, d:tail*0.90},  // C4 warmth
+    {f:349.23, g:0.11, d:tail*0.78},  // F4
+    {f:456.7,  g:0.075,d:tail*0.66},
+    {f:614.3,  g:0.045,d:tail*0.52},
+    {f:832.0,  g:0.025,d:tail*0.42}
+  ];
+
+  partials.forEach((p, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(p.f, now);
+    osc.frequency.exponentialRampToValueAtTime(p.f * (1 - 0.0025 * (i+1)), now + p.d);
+
+    gain.gain.setValueAtTime(0.00001, now);
+    gain.gain.exponentialRampToValueAtTime(p.g, now + 0.035 + i*0.006);
+    gain.gain.exponentialRampToValueAtTime(0.00001, now + p.d);
+
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(4200, now);
+    filter.frequency.exponentialRampToValueAtTime(1800, now + p.d);
+    filter.Q.value = 0.7;
+
+    osc.connect(gain);
+    gain.connect(filter);
+    filter.connect(master);
+    osc.start(now);
+    osc.stop(now + p.d + 0.25);
+  });
+
+  // Padded mallet strike: soft filtered thump/noise, not a sharp click.
+  const noise = ctx.createBufferSource();
+  noise.buffer = createNoiseBuffer(ctx, 0.18);
+  const strikeGain = ctx.createGain();
+  const strikeFilter = ctx.createBiquadFilter();
+
+  strikeFilter.type = "bandpass";
+  strikeFilter.frequency.setValueAtTime(520, now);
+  strikeFilter.Q.value = 0.75;
+
+  strikeGain.gain.setValueAtTime(0.18, now);
+  strikeGain.gain.exponentialRampToValueAtTime(0.00001, now + 0.16);
+
+  noise.connect(strikeFilter);
+  strikeFilter.connect(strikeGain);
+  strikeGain.connect(master);
+  noise.start(now);
+  noise.stop(now + 0.19);
+
+  setTimeout(() => ctx.close(), (tail + 0.5) * 1000);
+}
+
+function logSession(finalMs){
+  if (loggedCurrentSession) return;
+  const minutes = Math.max(1, Math.round(finalMs / 60000));
+  const note = notesToggle.checked ? sessionNote.value.trim() : "";
+  const log = getLog();
+  log.push({
+    minutes,
+    seconds: Math.round(finalMs / 1000),
+    note,
+    completedAt: new Date().toISOString()
+  });
+  setLog(log);
+  loggedCurrentSession = true;
+}
+
+function resetSessionState(){
+  mode = "ready";
+  accumulatedMs = 0;
+  runStartedAt = null;
+  loggedCurrentSession = false;
+  startPause.textContent = "Start";
+  sessionNote.value = "";
+  clearInterval(tickId);
+  clearInterval(countdownId);
+  tickId = null;
+  countdownId = null;
+}
+
+function startCountdown(){
+  if (mode !== "ready" && mode !== "ended") return;
+
+  mode = "countdown";
+  accumulatedMs = 0;
+  loggedCurrentSession = false;
+  countdownValue = 5;
+  startPause.textContent = "Pause";
+  statusEl.textContent = `Begin in ${countdownValue}`;
+
+  clearInterval(countdownId);
+  countdownId = setInterval(() => {
+    countdownValue -= 1;
+    if (countdownValue <= 0) {
+      clearInterval(countdownId);
+      countdownId = null;
+      if (openingBell.checked) bellTemple();
+      startRunning();
+    } else {
+      statusEl.textContent = `Begin in ${countdownValue}`;
+    }
+  }, 1000);
+}
+
+function startRunning(){
+  mode = "running";
+  runStartedAt = Date.now();
+  statusEl.textContent = "Sitting";
+  clearInterval(tickId);
+  tickId = setInterval(renderRunning, 250);
+  renderRunning();
+}
+
+function pauseSession(){
+  if (mode === "countdown") {
+    clearInterval(countdownId);
+    countdownId = null;
+    mode = "ready";
+    startPause.textContent = "Start";
+    renderReady();
+    return;
+  }
+
+  if (mode !== "running") return;
+
+  accumulatedMs += Date.now() - runStartedAt;
+  runStartedAt = null;
+  mode = "paused";
+  startPause.textContent = "Resume";
+  statusEl.textContent = "Paused";
+  clearInterval(tickId);
+  tickId = null;
+  renderPaused();
+}
+
+function resumeSession(){
+  if (mode !== "paused") return;
+  mode = "running";
+  runStartedAt = Date.now();
+  startPause.textContent = "Pause";
+  statusEl.textContent = "Sitting";
+  clearInterval(tickId);
+  tickId = setInterval(renderRunning, 250);
+  renderRunning();
+}
+
+function finishSession(endedEarly){
+  const finalMs = actualElapsedMs();
+  clearInterval(tickId);
+  clearInterval(countdownId);
+  tickId = null;
+  countdownId = null;
+
+  if (finalMs > 0) logSession(finalMs);
+
+  mode = "ended";
+  startPause.textContent = "Start";
+  statusEl.innerHTML = "Ardent, Alert, Clearly Knowing…<br><span style='font-size:.92rem'>Carry it forward.</span>";
+
+  if (closingBell.checked) bellTemple();
+
+  accumulatedMs = 0;
+  runStartedAt = null;
+
+  setTimeout(() => {
+    if (mode === "ended") renderReady();
+  }, 6500);
+}
+
+slider.addEventListener("input", () => setDuration(slider.value));
+
+document.querySelectorAll("[data-set]").forEach(btn => {
+  btn.addEventListener("click", () => setDuration(btn.dataset.set));
+});
+
+document.querySelectorAll("[data-adjust]").forEach(btn => {
+  btn.addEventListener("click", () => setDuration(durationMin + Number(btn.dataset.adjust)));
+});
+
+startPause.addEventListener("click", () => {
+  if (mode === "ready" || mode === "ended") startCountdown();
+  else if (mode === "running" || mode === "countdown") pauseSession();
+  else if (mode === "paused") resumeSession();
+});
+
+endEarly.addEventListener("click", () => {
+  if (mode === "running" || mode === "paused") finishSession(true);
+});
+
+testBell.addEventListener("click", bellTemple);
+
+notesToggle.addEventListener("change", () => {
+  notesBox.className = notesToggle.checked ? "notes" : "notes hidden";
+});
+
+clearLog.addEventListener("click", () => {
+  if (confirm("Clear all saved practice totals on this browser?")) {
+    setLog([]);
+  }
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js");
+  });
+}
+
+renderReady();
+renderStats();
+</script>
+</body>
+</html>
